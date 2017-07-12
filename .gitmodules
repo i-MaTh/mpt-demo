@@ -7,3 +7,6 @@
 [submodule "DeepMatchingGPU"]
 	path = DeepMatchingGPU
 	url = https://github.com/i-MaTh/DeepMatchingGPU
+[submodule "graph"]
+	path = graph
+	url = https://github.com/i-MaTh/graph
