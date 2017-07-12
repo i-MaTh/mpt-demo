@@ -1,0 +1,64 @@
+TRAIN:
+    SCALE: 400
+    UNNORMALIZED_SNAPSHOT_ITERS: 5000
+    IMS_PER_BATCH: 4
+
+    DATA_AUG:
+        MEAN_POLICY: CONST
+        NORMALIZER: 1.0
+        CROP_RATIO_MIN_BOUND: 0.8
+        MIN_SIZE: 5
+
+    #get raw proposal
+    RPN_NMS_THRESH: 0.7
+    RPN_PRE_NMS_TOP_N: 20000
+    RPN_POST_NMS_TOP_N: 4000
+    #get rpn_loss
+    RPN_POSITIVE_OVERLAP: 0.5
+    RPN_NEGATIVE_OVERLAP: 0.3
+    RPN_FG_FRACTION: 0.25
+    RPN_BATCHSIZE: 512
+
+    #proposal sampled
+    FG_FRACTION: 0.25
+    #fg overlap thresh
+    FG_THRESH: 0.6
+    BG_THRESH_HI: 0.4
+    BG_THRESH_LO: 0.0
+    BATCH_SIZE: -1
+    ROI_PER_IMG: 256
+
+TEST:
+    SCALE: 400
+    NMS: 0.35
+    RPN_NMS_THRESH: 0.7
+    RPN_PRE_NMS_TOP_N: 2000
+    RPN_POST_NMS_TOP_N: 500
+    THRESH: 0.7
+
+DEBUG:
+    RPN_ANCHOR_TARGET_SHOW: False
+    RPN_ANCHOR_TARGET_NEG_SHOW: False
+    RPN_PROPOSAL_SHOW: False
+    RPN_PROPOSAL_CHOSEN_SHOW: False
+    RPN_PROPOSAL_NEG_CHOSEN_SHOW: False
+
+
+ANCHOR_GENERATOR:
+    POLICY: SCALE_RATIO
+    SCALES: [10, 20, 30, 45, 65, 90, 120, 160]
+    #r=h/w
+    RATIOS: [0.33, 0.5, 1, 0.75, 2]
+    # SLIDING_WINDOW_WIDTH:  [10, 15, 20, 20, 30, 30, 40]
+    # SLIDING_WINDOW_HEIGHT: [15, 20, 30, 40, 45, 60, 60]
+
+NUM_CLASSES: 5
+CLASSES: ['__background__', 'person', 'bicycle', 'tricycle', 'car']
+FEAT_STRIDE: 16
+POSITION_NUM: 5
+
+SOLVER:
+    base_lr: 0.001
+    max_epoch: 100
+    step_epoch: 10
+    snapshot: 5000

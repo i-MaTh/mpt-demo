@@ -1,4 +1,8 @@
 import numpy as np
+<<<<<<< HEAD
+#import h5py
+=======
+>>>>>>> 826c5be7aab7f79158cc1c26a1bfd42b9cd1bf60
 import os
 import sys
 import matplotlib.pyplot as plt 
@@ -7,6 +11,41 @@ from random import random as rand
 
 
 def show_boxes():
+<<<<<<< HEAD
+	img_dir = sys.argv[1]
+	dets_path = sys.argv[2]
+	idx = int(sys.argv[3])
+	scale = 1.0
+
+	#dets_in = np.loadtxt(dets_path, delimiter=',').astype(np.int)
+	dets_in = np.load(dets_path)[:,:10].astype(np.int)
+	print sum(dets_in[:,1] == idx)
+	det = dets_in[dets_in[:,1] == idx][0]
+	img_path = os.path.join(img_dir, str(det[0]).zfill(6) + '.jpg')
+	print img_path
+
+	plt.cla()
+	plt.axis('off')
+	img = plt.imread(img_path)
+	print np.shape(img)
+	plt.imshow(img)
+	
+
+	bbox = det[2:6] * scale
+	color = (rand(), rand(), rand())
+	# rectangle params: lower left(x,y), weight, height
+	rect = plt.Rectangle((bbox[0], bbox[1]), 
+						  bbox[2], bbox[3],
+						  fill = False, edgecolor = color, 
+						  linewidth = 2.5)
+	plt.gca().add_patch(rect)
+		
+
+	idx = det[1]
+	plt.gca().text(bbox[0], bbox[1], 'ID: {}'.format(idx), 
+				bbox=dict(facecolor=color, alpha=0.5), fontsize= 7, color='white')
+	plt.show()
+=======
     img_dir = './img1'
     dets_path = './tracks07091309.txt'
     #dets_path = './refine_res1.txt'
@@ -39,11 +78,17 @@ def show_boxes():
     plt.gca().text(bbox[0], bbox[1], 'ID: {}'.format(idx), 
 				bbox=dict(facecolor=color, alpha=0.5), fontsize= 7, color='white')
     plt.show()
+>>>>>>> 826c5be7aab7f79158cc1c26a1bfd42b9cd1bf60
 
 
 def show_tracks(img_dir, det_path, out_dir, scale=1.0):
 	import cv2
+<<<<<<< HEAD
+	
+	#dets_in = np.load(det_path)
+=======
 
+>>>>>>> 826c5be7aab7f79158cc1c26a1bfd42b9cd1bf60
 	dets_in = np.loadtxt(det_path, delimiter=',')
 	img_paths = {int(os.path.splitext(f)[0]): os.path.join(img_dir, f) for f in os.listdir(img_dir)}
 	img_names = {int(os.path.splitext(f)[0]): f for f in os.listdir(img_dir)}
@@ -70,7 +115,11 @@ def show_tracks(img_dir, det_path, out_dir, scale=1.0):
 				    (d[1] + 5, d[2] + 5),
 				    color = colours[d[0]], thickness = -1)
 			'''
+<<<<<<< HEAD
+			cv2.putText(img, 'ID:{}'.format(d[0]), (d[1], d[2]),
+=======
 			cv2.putText(img, 'Person ID:{}'.format(d[0]), (d[1], d[2]),
+>>>>>>> 826c5be7aab7f79158cc1c26a1bfd42b9cd1bf60
 					cv2.FONT_HERSHEY_SIMPLEX, 0.7, color=(255, 255, 255),
 					thickness = 2)
 			
@@ -80,7 +129,11 @@ def show_tracks(img_dir, det_path, out_dir, scale=1.0):
 		if i % 100 == 0:
 			print 'process: %d' % i
 
+<<<<<<< HEAD
+def show_video(video_dir, dets_path, scale=1.0):
+=======
 def show_boxes3(video_dir, dets_path, scale=1.0):
+>>>>>>> 826c5be7aab7f79158cc1c26a1bfd42b9cd1bf60
 	"""
 	det format: frame_id, -1, bbox_left, bbox_right, width, height, score
 	"""
@@ -135,19 +188,30 @@ if __name__ == '__main__':
 	#img_path = sys.argv[1]	
 	#dets_path = sys.argv[2]
 	#show_boxes()
+<<<<<<< HEAD
+	'''	
+	video_dir = sys.argv[1]
+	det_path = sys.argv[2]
+	show_video(video_dir, det_path)
+=======
 	
 	#video_dir = sys.argv[1]
 	#det_path = sys.argv[2]
 	#show_boxes3('./img1', './refine_res1.txt')
+>>>>>>> 826c5be7aab7f79158cc1c26a1bfd42b9cd1bf60
 	
 	'''
 	assert len(sys.argv) > 1, 'please input (video_dir, det_path, out_dir)'
 	video_dir = sys.argv[1]
 	det_path = sys.argv[2]
 	out_dir = sys.argv[3]
+<<<<<<< HEAD
+	show_tracks(video_dir, det_path, out_dir)
+=======
     '''
 	show_tracks('./img', det_path, out_dir)
 	
+>>>>>>> 826c5be7aab7f79158cc1c26a1bfd42b9cd1bf60
 	
 
 
