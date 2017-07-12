@@ -1,0 +1,3 @@
+[submodule "dgd_person_reid"]
+	path = dgd_person_reid
+	url = https://github.com/i-MaTh/dgd_person_reid
