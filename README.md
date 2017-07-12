@@ -1,5 +1,3 @@
-# mpt-demo
-
 # References
 1. Simple Online and Realtime Tracking with a Deep Association Metric
 2. Multi-person Tracking by Multicut and DeepMatching
