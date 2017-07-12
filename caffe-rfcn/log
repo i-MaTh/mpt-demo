@@ -1,0 +1,2 @@
+CXX tools/vehicle_caffe_rfcn_ssd_detector.cpp
+CXX/LD -o .build_release/tools/vehicle_caffe_rfcn_ssd_detector.bin
