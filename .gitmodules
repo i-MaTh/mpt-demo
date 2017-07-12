@@ -4,3 +4,6 @@
 [submodule "deep_sort"]
 	path = deep_sort
 	url = https://github.com/i-MaTh/deep_sort
+[submodule "DeepMatchingGPU"]
+	path = DeepMatchingGPU
+	url = https://github.com/i-MaTh/DeepMatchingGPU
