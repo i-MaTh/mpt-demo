@@ -11,35 +11,36 @@ from collections import OrderedDict
 def reassign_id(trk_reid_file1, trk_reid_file2):
 	trk_reid1 = np.load(trk_reid_file1)
 	#print 'trk_reid shape: {}'.format(trk_reid1.shape)
-	trk_reid2 = np.load(trk_reid_file2)
+	#trk_reid2 = np.load(trk_reid_file2)
 	#print 'trk_reid shape: {}'.format(trk_reid2.shape)
 	indices_trk1 = trk_reid1[:,1].astype(np.int)
-	indices_trk2 = trk_reid2[:,1].astype(np.int)
+	#indices_trk2 = trk_reid2[:,1].astype(np.int)
 	
 	unique_id_trk1 = set()
 	for idx in indices_trk1:
 		unique_id_trk1.add(idx)
 
+	'''
 	unique_id_trk2 = set()
 	for idx in indices_trk2:
 		unique_id_trk2.add(idx)
-
+	'''
 	print 'number of unique id in trk1: %d' % len(unique_id_trk1)
-	print 'number of unique id in trk2: %d' % len(unique_id_trk2)
+	#print 'number of unique id in trk2: %d' % len(unique_id_trk2)
 
-	id_set1 = {k:(v+1) for v, k in enumerate(unique_id_trk1)}
-	id_set2 = {k:(v+1+len(unique_id_trk1)) for v, k in enumerate(unique_id_trk2)}
+	id_set1 = {k:(v+66) for v, k in enumerate(unique_id_trk1)}
+	#id_set2 = {k:(v+1+len(unique_id_trk1)) for v, k in enumerate(unique_id_trk2)}
 	
 	print id_set1
-	print id_set2
+	#print id_set2
 	
 	indices_trk1 = [id_set1[idx] for idx in indices_trk1]
 	trk_reid1[:, 1] = indices_trk1
-	indices_trk2 = [id_set2[idx] for idx in indices_trk2]
-	trk_reid2[:, 1] = indices_trk2
+	#indices_trk2 = [id_set2[idx] for idx in indices_trk2]
+	#trk_reid2[:, 1] = indices_trk2
 
 	np.save(trk_reid_file1, trk_reid1)
-	np.save(trk_reid_file2, trk_reid2)
+	#np.save(trk_reid_file2, trk_reid2)
 
 
 def merge_camera(trk_reid_file1, trk_reid_file2, threshold=0.14):
@@ -62,7 +63,7 @@ def merge_camera(trk_reid_file1, trk_reid_file2, threshold=0.14):
 	print 'number of unique id in trk1: %d' % len(unique_id_trk1)
 	print 'number of unique id in trk2: %d' % len(unique_id_trk2)
 	
-
+	'''
 	reid_features1 = trk_reid1[:, 10:]
 	reid_features2 = trk_reid2[:, 10:]
 	distances = OrderedDict()
@@ -82,21 +83,52 @@ def merge_camera(trk_reid_file1, trk_reid_file2, threshold=0.14):
 	#print distances	
 	cands = [it for it in distances.items() if it[1] < threshold]
 	print cands
-	
+
 	for c in cands:
 		tmp = c[0].split('_')
 		i = map(int, tmp[0].split('-'))[1]
 		j = map(int, tmp[1].split('-'))[1]
 		print 'i: %d, j: %d' % (i, j)
 		indices_trk2 = [i if idx == j else idx for idx in indices_trk2]
+	'''
+	manual_cands = [[9,23], [8,27], [5,86], [13,128], [14,76], [11,138], [19,93], [23,108], [12,112], [24,132], \
+					[15,140], [17,137], [52,96], [58,115], [56,113], [57,111], [44,126], [38,84], [10,129], [30,118],\
+					[32,101], [29,124], [3,73], [36,132], [40,71], [41,140], [46,82], [20,84], [18,131], [1,135], [25,123] ]
 	
+	for c in manual_cands:
+		i = c[0]
+		j = c[1]
+		indices_trk2 = [i if idx == j else idx for idx in indices_trk2]
+
 	trk_reid2[:, 1] = indices_trk2
 	
 	np.save(trk_reid_file2, trk_reid2)
 	
 
+def merge_pairs(pairs):
+	pairs = sorted([sorted(x) for x in pairs]) #Sorts lists in place so you dont miss things
+	output = []
+
+	if len(pairs) >= 1: # If your list is empty then you dont need to do anything.
+		output = [pairs[0]] #Add the first item to your resultset
+		if len(pairs) > 1: #If there is only one list in your list then you dont need to do anything.
+			for p in pairs[1:]: #Loop through lists starting at list 1
+				pset = set(p) #Turn you list into a set
+				merged = False #Trigger
+				for idx in range(len(output)):
+					oset = set(output[idx])
+					if len(pset & oset) != 0:
+						output[idx] = sorted(list(pset | oset))
+						merged = True #Turn trigger to True
+						break
+				if not merged:
+					output.append(p)
+	return output
+
+
 def merge_component(trks_file, dis_file, output_file=None, threshold=0.1):
 	dis = pickle.load(open(dis_file, 'r'))
+	print '2_16: {}'.format(dis['2_16'])
 	#trks = np.loadtxt(trks_file, delimiter=',').astype(np.int)
 	trk_reid = np.load(trks_file)
 	trks = trk_reid[:, :10].astype(np.int)
@@ -111,15 +143,34 @@ def merge_component(trks_file, dis_file, output_file=None, threshold=0.1):
 	
 	print 'number of dis < {}: {}'.format(threshold , sum(np.asarray(dis.values()) < threshold))
 	cands = [it for it in dis.items() if it[1] < threshold]
-	#print cands		    
+	print cands		    
+	
+	pairs = []
+	for c in cands:
+		p = map(int, c[0].split('_'))
+		pairs.append(p)
+
+	clusters = merge_pairs(pairs)
+	print clusters	
+	for c in clusters:
+		anchor = c[0]
+		for idx in c[1:]:
+			insec_frame = set(trks[trk_indices == idx][:, 0]) & set(trks[trk_indices == anchor][:, 0]) 		
+			#print insec_frame
+			if len(insec_frame) == 0:
+				trk_indices = [anchor if i == idx else i for i in trk_indices]
+				#print '%d_%d' % (anchor, idx)
+	
+	'''
 	for c in cands:
 		tmp = map(int, c[0].split('_'))
 		trk_indices = [tmp[0] if idx == tmp[1] else idx for idx in trk_indices]
-									        
+	'''									        
 	#trks[:,1] = trk_indices
 	#np.savetxt(output_file, trks, fmt='%.2f', delimiter=',')
 	trk_reid[:,1] = trk_indices
-	np.save(trks_file, trk_reid)
+	np.save(trks_file+'1', trk_reid)
+	
 
 
 def compute_similarity(trk_reid_file, norm=False):
@@ -212,20 +263,43 @@ def clean_tracker(trk_reid_file, threshold=20):
 	print num_per_trk
 	print sorted(num_per_trk.values())
 	
-			
 	new_trks = []
 	for i in range(trks.shape[0]):
 		trk_id = trks[i][1]
+		
 		bb_left = trks[i][2]
 		bb_top = trks[i][3]
 		if num_per_trk[trk_id] < threshold: continue
-		#if bb_left > 1700 or bb_top > 800: continue
+		#if bb_left > 1700 or bb_top > 800: continue	
+		#if trk_id in [148, 172, 144]: continue
 		new_trks.append(trk_reid[i])
 
 	#_tuples = os.path.splitext(trk_reid_file)
 	#outpath = _tuples[0] + '_new' + _tuples[1]
+	#print 'new trks: {}'.format(new_trks.shape)
 	outpath = trk_reid_file
 	np.save(outpath, new_trks)
+
+
+def manual_merge():
+	trk_reid = np.load(sys.argv[1])
+	trks = trk_reid[:, :10].astype(np.int)
+	trk_indices = trks[:, 1]
+	
+	#cands = [[2,12], [9,13], [1,19], [3,34,53,73],[27,35,39,43], [20,40,41,47], [24,62,78], [48,49,71],\
+	#		 [17,33], [22,37],[77,87,83,90,93], [56,81,88]]
+
+	cands = [[8,69], [10,71], [1,77], [11,79], [13,70], [14,88], [5,97], [18,102], [17,73], [20,119], [12,122], [22,131],\
+			 [16,130], [21,81], [27,128], [26,66], [28,124], [32,74], [3,67], [38,78], [39,98], [40,82], [44,86], [46,83],\
+			 [19,108], [43,68], [49,92], [51,106], [52,121], [55,123], [34,95], [56,125]]
+	#cands = [[38,42,45]]
+	for c in cands:
+		anchor = c[0]
+		for idx in c[1:]:
+			trk_indices = [anchor if i == idx else i for i in trk_indices]
+			print '%d_%d: ' % (anchor, idx)	
+	trk_reid[:,1] = trk_indices
+	np.save(sys.argv[1], trk_reid)
 
 
 def parse_args():
@@ -278,18 +352,46 @@ def convert_format(inpath, outpath):
 	reid_features = trk_reid[:,10:]
 	
 
+def other():
+	trk_reid = np.load(sys.argv[1])
+	trks = trk_reid[:, :10].astype(np.int)
+	trk_indices = trks[:, 1]
+	frame_indices = trks[:, 0]
+	bb_left_indices = trks[:,2]
+	bb_top_indices = trks[:,3]
+	print trks[frame_indices == 1100]
+	
+	'''
+	cands = [[3,49]]
+	#cands = [[71,136], [78,121], [89,110]]
+	for c in cands:
+		anchor = c[0]
+		for idx in c[1:]:
+			trk_indices = [anchor if i == idx else i for i in trk_indices]
+	'''
+		
+	for i in range(len(trk_indices)):
+		if trk_indices[i] == 114 and frame_indices[i] >= 1200:
+			trk_indices[i] = 83
+		#if trk_indices[i] == 126 and frame_indices[i] > 603:
+		#	trk_indices[i] = 211
+	
+	trk_reid[:,1] = trk_indices
 
+	np.save(sys.argv[1], trk_reid)
+	
 
 if __name__ == '__main__':
-	args = parse_args()
+	#args = parse_args()
 	#test(sys.argv[1])	
-	#clean_tracker(args.trk_reid_file)
+	#clean_tracker(sys.argv[1])
 	#compute_similarity(args.trk_reid_file, True)
-	test(args.dis_file)
+	#test(args.dis_file)
 	#merge_component(args.trk_reid_file, args.dis_file)
-	#reassign_id(sys.argv[1], sys.argv[2])
+	#reassign_id(sys.argv[1], '')
 	#merge_camera(sys.argv[1], sys.argv[2])
 	#clean_detection(sys.argv[1])
-
+	manual_merge()
+	#other()
 
 
